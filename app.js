@@ -77,7 +77,8 @@ const userSchema = new mongoose.Schema({
     email: String, 
     password: String,
     googleId: String,  // for authentication with google --> we only get what equivalent to username on Google User database
-    secret: String
+    // secret: String
+    secrets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Secret' }]
 });
 
 
@@ -138,6 +139,16 @@ passport.use(new GoogleStrategy(
 ));
 
 
+
+const secretSchema = new mongoose.Schema({
+    secret: String
+});
+
+// Define the Secret model
+const Secret = mongoose.model("Secret", secretSchema);
+
+
+
 // GET request to "/" route
 app.get("/", function (req, res) {
     res.render("home");
@@ -181,14 +192,27 @@ app.get("/secrets", function (req, res) {
     //     res.redirect("/login");
     // }
 
-    User.find({"secret": {$ne: null}})
-        .then(function(foundUsers) {
-           res.render("secrets", {usersWithSecrets: foundUsers});
-        })
-        .catch(function(err) {
-           console.log(err);
-        });
+    // User.find({"secret": {$ne: null}})
+    //     .then(function(foundUsers) {
+    //        res.render("secrets", {usersWithSecrets: foundUsers});
+    //     })
+    //     .catch(function(err) {
+    //        console.log(err);
+    //     });
 
+
+    if (req.isAuthenticated()) {
+        // Use the populate method to retrieve the secrets associated with each user
+        User.find({}).populate('secrets').exec()
+            .then((foundUsers) => {
+                res.render("secrets", { usersWithSecrets: foundUsers });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    } else {
+        res.redirect("/login");
+    }
 });
 
 
@@ -315,22 +339,36 @@ app.post("/submit", function(req, res) {
     // console.log(req.user);
     // console.log(req.user.id);
 
-    User.findById(req.user.id)
-       .then((foundUser) => {
-          if (foundUser) {
-            foundUser.secret = submittedSecret;
+    // Create a new secret instance
+    const newSecret = new Secret({
+        secret: submittedSecret
+    });
 
-            foundUser.save()
-               .then(function() {
-                   res.redirect("/secrets");
-                })
+    // Save the new secret
+    newSecret.save()
+       .then(function(savedSecret) {
+           // Associate the new secret with the current user
+           User.findById(req.user.id)
+               .then((foundUser) => {
+                   if (foundUser) {
+                       foundUser.secrets.push(savedSecret);
+
+                       foundUser.save()
+                           .then(function() {
+                               res.redirect("/secrets");
+                           })
+                           .catch(function(err) {
+                               console.log(err);
+                           });
+                   }
+               })
                .catch(function(err) {
                    console.log(err);
-                });  
-          }
+               });
        })
        .catch(function(err) {
-        console.log(err);
+           console.log(err);
+           res.redirect("/submit"); // Handle error as needed
        });
 
 });
