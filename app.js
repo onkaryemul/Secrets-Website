@@ -11,7 +11,9 @@ const mongoose = require("mongoose");
 // const bcrypt = require("bcrypt");
 // const saltRounds = 10;
 
-const session = require("express-session");
+const session = require("express-session"); // Require express-session before connect-mongo
+const MongoStore = require("connect-mongo");
+
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 
@@ -26,14 +28,27 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
+// Create an instance of MongoStore
+const mongoStore = MongoStore.create({
+    mongoUrl: `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.4158yrd.mongodb.net/userDB`,
+    mongooseConnection: mongoose.connection,
+    // Additional options if needed
+});
+
+
+// Use connect-mongo to store sessions in MongoDB
 app.use(session({
     secret: "Our little secret.",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: mongoStore,
 }));
 
+    
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 // Connet to new database called userDB
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.4158yrd.mongodb.net/userDB`, 
@@ -42,7 +57,15 @@ mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS
         useUnifiedTopology: true
     }
 )
-.then(() => { console.log("Connected") })
+.then(() => { 
+    console.log("Connected");
+    // Once the connection is established, you can start your server or perform other operations.
+    const port = process.env.PORT || 3000;
+
+    app.listen(port, function () {
+      console.log(`Server started on port ${port}`);
+    }); 
+})
 .catch((err) => { console.log(err)});
 
 // mongoose.set("useCreateIndex", true);
@@ -311,16 +334,6 @@ app.post("/submit", function(req, res) {
        });
 
 });
-
-
-
-const port = process.env.PORT || 3000;
-
-
-app.listen(port, function () {
-    console.log(`Server started on port ${port}`);
-});
-
 
 
 
