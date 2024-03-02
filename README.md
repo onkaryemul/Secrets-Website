@@ -47,18 +47,28 @@ Secrets is a web application that allows users to share their secrets anonymousl
 
 
 ## How to Run
-
+  
 1. **Environment Variables:**
-   - Create a `.env` file in the project root and add the required environment variables, including MongoDB connection details, Google OAuth credentials, etc.
+   - Create a `.env` file in the project root and add the following environment variables including MongoDB connection details, Google OAuth credentials, etc. :
+     
+     ```env
+       SECRET=Thisisourlittlesecret.
+       DB_USERNAME=your_mongodb_username
+       DB_PASSWORD=your_mongodb_password
+       CLIENT_ID=your_google_client_id
+       CLIENT_SECRET=your_google_client_secret
+     ```
+
+     Make sure to replace `your_mongodb_username`, `your_mongodb_password`, `your_google_client_id`, and `your_google_client_secret` with your actual MongoDB and Google OAuth credentials.
 
 2. **Install Dependencies:**
    ```bash
-   npm install
+     npm install
    ```
 
 3. **Run the Application:**
    ```bash
-   nodemon app.js
+     nodemon app.js
    ```
 
 4. **Access the Application:**
