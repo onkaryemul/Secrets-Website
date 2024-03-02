@@ -125,7 +125,7 @@ passport.use(new GoogleStrategy(
     {  // options
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/auth/google/secrets",
+        callbackURL: `${process.env.CALL_BACK_URL}/auth/google/secrets`,
         userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
     },
     // callback function

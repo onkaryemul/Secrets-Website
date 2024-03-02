@@ -57,9 +57,12 @@ Secrets is a web application that allows users to share their secrets anonymousl
        DB_PASSWORD=your_mongodb_password
        CLIENT_ID=your_google_client_id
        CLIENT_SECRET=your_google_client_secret
+       CALL_BACK_URL=http://localhost:3000
      ```
 
      Make sure to replace `your_mongodb_username`, `your_mongodb_password`, `your_google_client_id`, and `your_google_client_secret` with your actual MongoDB and Google OAuth credentials.
+
+     `CALL_BACK_URL`: This variable specifies the callback URL for Google OAuth. It indicates the URL to which Google will redirect the user after the user grants/denies permission on the consent screen. In your case, it's set to http://localhost:3000, but when deploying your application, you should update it to the actual production URL.
 
 2. **Install Dependencies:**
    ```bash
